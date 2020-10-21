@@ -57,7 +57,7 @@ autoscale_upper_bound = 80
 autoscale_upper_increment = 1
 
 elb_scheme = "public"
-solution_stack_name = "64bit Amazon Linux 2018.03 v2.12.17 running Docker 18.06.1-ce"
+solution_stack_name = "64bit Amazon Linux 2018.03 v2.16.0 running Docker 19.03.6-ce"
 
 version_label = ""
 

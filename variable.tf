@@ -6,7 +6,9 @@ variable "name"{}
 variable "namespace"{}
 variable "stage"{}
 
-variable "availability_zones"{}
+variable "availability_zones"{
+    type        = list(string)
+    }
 
 variable "description"{}
 variable "tier"{}
@@ -21,7 +23,12 @@ variable "force_destroy"{}
 variable "rolling_update_enabled"{}
 variable "attributes"{}
 variable "rolling_update_type"{}
-variable "tags"{}
+# variable "tags"{}
+variable "tags" {
+  type        = map(string)
+  default     = {}
+  description = "Additional tags (e.g. `map('BusinessUnit`,`XYZ`)"
+}
 variable "updating_min_in_service"{}
 variable "delimiter"{}
 variable "updating_max_batch"{}

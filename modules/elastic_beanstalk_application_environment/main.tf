@@ -75,12 +75,6 @@ resource "aws_iam_role" "ec2" {
   assume_role_policy = data.aws_iam_policy_document.ec2.json
 }
 
-resource "aws_iam_role_policy" "default" {
-  name   = "daniyal-eb-default"
-  role   = aws_iam_role.ec2.id
-  policy = data.aws_iam_policy_document.extended.json
-}
-
 resource "aws_iam_role_policy_attachment" "web_tier" {
   role       = aws_iam_role.ec2.name
   policy_arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkWebTier"
@@ -291,7 +285,7 @@ resource "aws_s3_bucket" "elb_logs" {
   bucket        = "daniyal-eb-loadbalancer-logs"
   acl           = "private"
   force_destroy = var.force_destroy
-  policy        = join("", data.aws_iam_policy_document.extended.*.json)
+  policy        = join("", data.aws_iam_policy_document.elb_logs.*.json)
 }
 
 resource "aws_iam_instance_profile" "ec2" {
@@ -329,7 +323,6 @@ locals {
   // https://github.com/terraform-providers/terraform-provider-aws/issues/3963
   tags = { for t in keys(var.tags) : t => var.tags[t] if t != "Name" && t != "Namespace" }
 
-  
   alb_settings = [
     {
       namespace = "aws:elbv2:loadbalancer"
@@ -340,6 +333,16 @@ locals {
       namespace = "aws:elbv2:loadbalancer"
       name      = "AccessLogsS3Enabled"
       value     = "true"
+    },
+    {
+      namespace = "aws:elbv2:loadbalancer"
+      name      = "SecurityGroups"
+      value     = join(",", sort(var.loadbalancer_security_groups))
+    },
+    {
+      namespace = "aws:elbv2:loadbalancer"
+      name      = "ManagedSecurityGroup"
+      value     = var.loadbalancer_managed_security_group
     },
     {
       namespace = "aws:elbv2:listener:default"
@@ -407,8 +410,7 @@ locals {
     }
   ]
 
-  # If the tier is "WebServer" add the elb_settings, otherwise exclude them
-  elb_settings_final = var.tier == "WebServer" ? var.loadbalancer_type == "application" ? concat(local.alb_settings, local.generic_elb_settings) : []:[]
+  elb_settings_final = concat(local.alb_settings, local.generic_elb_settings)
 }
 #
 # Full list of options:
@@ -564,34 +566,6 @@ resource "aws_elastic_beanstalk_environment" "default" {
     namespace = "aws:ec2:instances"
     name      = "InstanceTypes"
     value     = var.instance_type
-    resource  = ""
-  }
-
-  setting {
-    namespace = "aws:ec2:instances"
-    name      = "EnableSpot"
-    value     = var.enable_spot_instances ? "true" : "false"
-    resource  = ""
-  }
-
-  setting {
-    namespace = "aws:ec2:instances"
-    name      = "SpotFleetOnDemandBase"
-    value     = var.spot_fleet_on_demand_base
-    resource  = ""
-  }
-
-  setting {
-    namespace = "aws:ec2:instances"
-    name      = "SpotFleetOnDemandAboveBasePercentage"
-    value     = var.spot_fleet_on_demand_above_base_percentage == -1 ? (var.environment_type == "LoadBalanced" ? 70 : 0) : var.spot_fleet_on_demand_above_base_percentage
-    resource  = ""
-  }
-
-  setting {
-    namespace = "aws:ec2:instances"
-    name      = "SpotMaxPrice"
-    value     = var.spot_max_price == -1 ? "" : var.spot_max_price
     resource  = ""
   }
 
@@ -788,17 +762,7 @@ resource "aws_elastic_beanstalk_environment" "default" {
       resource  = ""
     }
   }
-
-  // dynamic needed as "spot max price" should only have a value if it is defined.
-  dynamic "setting" {
-    for_each = var.spot_max_price == -1 ? [] : [var.spot_max_price]
-    content {
-      namespace = "aws:ec2:instances"
-      name      = "SpotMaxPrice"
-      value     = var.spot_max_price
-      resource  = ""
-    }
-  }
+  
 }
   
 
@@ -828,4 +792,3 @@ data "aws_iam_policy_document" "elb_logs" {
     effect = "Allow"
   }
 }
-

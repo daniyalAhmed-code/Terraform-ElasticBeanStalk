@@ -1,57 +1,3 @@
-# variable "namespace"{}
-# variable "stage"{}
-# variable "attributes"{}
-# variable "name"{}
-# variable "tags"{}
-# variable "delimiter"{}
-# variable "description"{}
-# variable "region"{}
-# variable "availability_zone_selector"{}
-# variable "dns_zone_id"{}
-# variable "wait_for_ready_timeout"{}
-# variable "environment_type"{}
-# variable "loadbalancer_type"{}
-# variable "elastic_beanstalk_application_name"{}
-# variable "elb_scheme"{}
-# variable "tier"{}
-# variable "version_label"{}
-# variable "force_destroy"{}
-# variable "instance_type"{}
-# variable "root_volume_size"{}
-# variable "root_volume_type"{}
-# variable "autoscale_min"{}
-# variable "autoscale_max"{}
-# variable "autoscale_measure_name"{}
-# variable "autoscale_statistic"{}
-# variable "autoscale_unit"{}
-# variable "autoscale_lower_bound"{}
-# variable "autoscale_lower_increment"{}
-# variable "autoscale_upper_bound"{}
-# variable "autoscale_upper_increment"{}
-# variable "vpc_id"{}
-# variable "loadbalancer_subnets"{}
-# variable "application_subnets"{}
-# variable "rolling_update_enabled"{}
-
-# variable "rolling_update_type"{}
-# variable "updating_min_in_service"{}
-# variable "updating_max_batch"{}
-# variable "healthcheck_url"{}
-# variable "application_port"{}
-# variable "additional_settings"{}
-# variable "solution_stack_name"{}
-# variable "prefer_legacy_ssm_policy"{}
-# variable "extended_ec2_policy_document"{}
-# variable "enhanced_reporting_enabled"{
-#     default = "0"
-# }
-# variable "loadbalancer_certificate_arn"{
-#     default =""
-# }
-# variable "loadbalancer_ssl_policy" {default=""}
-# variable "http_listener_enabled"{default=""}
-
-
 variable "region" {
   type        = string
   description = "AWS region"
@@ -159,7 +105,7 @@ variable "vpc_id" {
 variable "loadbalancer_subnets" {
   type        = list
   description = "List of subnets to place Elastic Load Balancer"
-  default     = []
+ 
 }
 
 variable "application_subnets" {
@@ -179,29 +125,6 @@ variable "instance_type" {
   description = "Instances type"
 }
 
-variable "enable_spot_instances" {
-  type        = bool
-  default     = false
-  description = "Enable Spot Instance requests for your environment"
-}
-
-variable "spot_fleet_on_demand_base" {
-  type        = number
-  default     = 0
-  description = "The minimum number of On-Demand Instances that your Auto Scaling group provisions before considering Spot Instances as your environment scales up. This option is relevant only when enable_spot_instances is true."
-}
-
-variable "spot_fleet_on_demand_above_base_percentage" {
-  type        = number
-  default     = -1
-  description = "The percentage of On-Demand Instances as part of additional capacity that your Auto Scaling group provisions beyond the SpotOnDemandBase instances. This option is relevant only when enable_spot_instances is true."
-}
-
-variable "spot_max_price" {
-  type        = number
-  default     = -1
-  description = "The maximum price per unit hour, in US$, that you're willing to pay for a Spot Instance. This option is relevant only when enable_spot_instances is true. Valid values are between 0.001 and 20.0"
-}
 
 variable "enhanced_reporting_enabled" {
   type        = bool
@@ -240,7 +163,7 @@ variable "wait_for_ready_timeout" {
 
 variable "associate_public_ip_address" {
   type        = bool
-  default     = false
+  default     = true
   description = "Whether to associate public IP addresses to the instances"
 }
 
@@ -391,7 +314,7 @@ variable "instance_refresh_enabled" {
 variable "keypair" {
   type        = string
   description = "Name of SSH key that will be deployed on Elastic Beanstalk and DataPipeline instance. The key should be present in AWS"
-  default     = ""
+  default     = "DaniyalSSH"
 }
 
 variable "root_volume_size" {

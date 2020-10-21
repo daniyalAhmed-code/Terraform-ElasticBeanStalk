@@ -4,6 +4,11 @@ module "vpc"{
     VPC_CIDR = var.VPC_CIDR
     PUBLIC_SUBNET= var.PUBLIC_SUBNET
     PRIVATE_SUBNET= var.PRIVATE_SUBNET
+    availability_zones   = var.availability_zones
+    namespace            = var.namespace
+    stage                = var.stage
+    nat_gateway_enabled  = true
+    nat_instance_enabled = false
 }
 
 module "elastic-beanstalk"{
@@ -15,13 +20,13 @@ module "elastic-beanstalk-environment"{
     namespace                  = var.namespace
     stage                      = var.stage
     name                       = var.name
-    attributes                 = var.attributes
+    attributes                 = [var.attributes]
     tags                       = var.tags
     delimiter                  = var.delimiter
     description                = var.description
     region                     = var.region
     availability_zone_selector = var.availability_zone_selector
-    dns_zone_id                = var.dns_zone_id
+    # dns_zone_id                = var.dns_zone_id
     wait_for_ready_timeout             = var.wait_for_ready_timeout
     elastic_beanstalk_application_name = module.elastic-beanstalk.elastic_beanstalk_application_name
     environment_type                   = var.environment_type
@@ -43,8 +48,8 @@ module "elastic-beanstalk-environment"{
     autoscale_upper_bound     = var.autoscale_upper_bound
     autoscale_upper_increment = var.autoscale_upper_increment
     vpc_id                  = module.vpc.vpc_id
-    loadbalancer_subnets    = module.vpc.public-subnets
-    application_subnets     = module.vpc.private-subnets
+    loadbalancer_subnets    = [module.vpc.public-subnets]
+    application_subnets     = [module.vpc.public-subnets]
     rolling_update_enabled  = var.rolling_update_enabled
     rolling_update_type     = var.rolling_update_type
     updating_min_in_service = var.updating_min_in_service
@@ -67,12 +72,14 @@ data "aws_iam_policy_document" "minimal_s3_permissions" {
         "s3:GetBucketLocation"
         ]
         resources = ["*"]
+        principals {
+      type        = "minimal_s3_permissions"
+      identifiers = ["*"]
     }
     }
-module "dns_hostname" {
-  source  = "./modules/dns_hostname"
-  enabled = var.dns_zone_id != "" && var.tier == "WebServer" ? true : false
-  name    = var.dns_subdomain != "" ? var.dns_subdomain : var.name
-  zone_id = var.dns_zone_id
-  records = module.elastic-beanstalk-environment.default.cname
+    }
+
+module "elastic-beanstalk-bucket"{
+source = "./modules/elastic_beanstalk_bucket"
+application = module.elastic-beanstalk-environment.default.name
 }

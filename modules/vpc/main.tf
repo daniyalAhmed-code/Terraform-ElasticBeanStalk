@@ -1,10 +1,4 @@
-# Declare the data source
-data "aws_availability_zones" "available" {
-  state = "available"
-}
-locals {
-  az_length = length(data.aws_availability_zones.available.names)
-}
+
 # Internet VPC
 resource "aws_vpc" "vpc" {
   cidr_block           = var.VPC_CIDR
@@ -12,7 +6,7 @@ resource "aws_vpc" "vpc" {
   enable_dns_support   = "true"
   enable_dns_hostnames = "true"
   tags = {
-    Name = "${terraform.workspace}-${var.NAME}"
+    Name = "daniyal-${var.NAME}"
   }
 }
 
@@ -22,9 +16,9 @@ resource "aws_subnet" "public-subnets" {
   vpc_id                  = aws_vpc.vpc.id
   cidr_block              = var.PUBLIC_SUBNET[count.index]
   map_public_ip_on_launch = "true"
-  availability_zone       = "us-east-2a"
+  availability_zone       = var.availability_zones[count.index]
   tags = {
-    Name = "${terraform.workspace}-${var.NAME}-public-subnet-${count.index}"
+    Name = "daniyal-${var.NAME}-public-subnet-${count.index}"
   }
 }
 
@@ -34,10 +28,10 @@ resource "aws_subnet" "private-subnets" {
   vpc_id                  = aws_vpc.vpc.id
   cidr_block              = var.PRIVATE_SUBNET[count.index]
   map_public_ip_on_launch = "false"
-  availability_zone       = "us-east-2a"
+  availability_zone       = var.availability_zones[count.index]
 
   tags = {
-    Name = "${terraform.workspace}-${var.NAME}-private-subnet-${count.index}"
+    Name = "daniyal-${var.NAME}-private-subnet-${count.index}"
   }
 }
 
@@ -46,7 +40,7 @@ resource "aws_internet_gateway" "vpc-gw" {
   vpc_id = aws_vpc.vpc.id
 
   tags = {
-    Name = "${terraform.workspace}-${var.NAME}-gw"
+    Name = "daniyal-${var.NAME}-gw"
   }
 }
 
@@ -59,7 +53,7 @@ resource "aws_route_table" "public-route-table" {
   }
 
   tags = {
-    Name = "${terraform.workspace}-${var.NAME}-public-route-table"
+    Name = "daniyal-${var.NAME}-public-route-table"
   }
 }
 # VPC setup for NAT
@@ -73,7 +67,7 @@ resource "aws_nat_gateway" "nat-gw" {
   subnet_id     =  aws_subnet.public-subnets[0].id
   depends_on    = [aws_internet_gateway.vpc-gw]
   tags = {
-    Name = "${terraform.workspace}-${var.NAME}-nat-gw"
+    Name = "daniyal-${var.NAME}-nat-gw"
 }
 }
 # private route table
@@ -86,7 +80,7 @@ resource "aws_route_table" "private-route-table" {
   }
 
   tags = {
-    Name = "${terraform.workspace}-${var.NAME}-private-route-table"
+    Name = "daniyal-${var.NAME}-private-route-table"
   }
 }
 # route associations public
