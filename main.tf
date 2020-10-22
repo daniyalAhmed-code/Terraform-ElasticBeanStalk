@@ -14,6 +14,8 @@ module "vpc"{
 module "elastic-beanstalk"{
     source = "./modules/elastic_beanstalk_application"
     name = var.name
+    # version_label=var.version_label
+    solution_stack_name = var.solution_stack_name
 }
 module "elastic-beanstalk-environment"{
     source = "./modules/elastic_beanstalk_application_environment"
@@ -26,7 +28,6 @@ module "elastic-beanstalk-environment"{
     description                = var.description
     region                     = var.region
     availability_zone_selector = var.availability_zone_selector
-    # dns_zone_id                = var.dns_zone_id
     wait_for_ready_timeout             = var.wait_for_ready_timeout
     elastic_beanstalk_application_name = module.elastic-beanstalk.elastic_beanstalk_application_name
     environment_type                   = var.environment_type
@@ -81,5 +82,7 @@ data "aws_iam_policy_document" "minimal_s3_permissions" {
 
 module "elastic-beanstalk-bucket"{
 source = "./modules/elastic_beanstalk_bucket"
-application = module.elastic-beanstalk-environment.default.name
+application = module.elastic-beanstalk.elastic_beanstalk_application_name
+version_label = var.version_label
+api_dist = var.api_dist
 }

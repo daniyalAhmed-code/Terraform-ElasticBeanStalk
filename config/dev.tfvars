@@ -1,5 +1,5 @@
 region = "us-east-2"
-
+api_dist = "Archive"
 availability_zones = ["us-east-2a", "us-east-2b"]
 
 namespace = "eg"

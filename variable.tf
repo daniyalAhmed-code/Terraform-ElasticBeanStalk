@@ -1,4 +1,5 @@
 variable "VPC_CIDR"{}
+variable "api_dist"{}
 variable "region"{}
 variable "PUBLIC_SUBNET"{}
 variable "PRIVATE_SUBNET"{}

@@ -1,4 +1,3 @@
-variable "api_dist"{
-    default ="Archive"
-}
+variable "api_dist"{}
 variable "application"{}
+variable "version_label"{}

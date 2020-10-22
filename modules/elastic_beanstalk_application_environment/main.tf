@@ -15,7 +15,7 @@ data "aws_iam_policy_document" "service" {
 }
 
 resource "aws_iam_role" "service" {
-  name               = "daniyal-eb-service"
+  name               = "${terraform.workspace}-eb-service"
   assume_role_policy = data.aws_iam_policy_document.service.json
 }
 
@@ -71,7 +71,7 @@ resource "aws_iam_role_policy_attachment" "elastic_beanstalk_multi_container_doc
 }
 
 resource "aws_iam_role" "ec2" {
-  name               = "daniyal-eb-ec2"
+  name               = "${terraform.workspace}-eb-ec2"
   assume_role_policy = data.aws_iam_policy_document.ec2.json
 }
 
@@ -280,16 +280,16 @@ data "aws_iam_policy_document" "extended" {
   source_json   = data.aws_iam_policy_document.default.json
   override_json = var.extended_ec2_policy_document
 }
-resource "aws_s3_bucket" "elb_logs" {
-  count         = var.tier == "WebServer" && var.environment_type == "LoadBalanced" ? 1 : 0
-  bucket        = "daniyal-eb-loadbalancer-logs"
-  acl           = "private"
-  force_destroy = var.force_destroy
-  policy        = join("", data.aws_iam_policy_document.elb_logs.*.json)
-}
+# resource "aws_s3_bucket" "elb_logs" {
+#   count         = var.tier == "WebServer" && var.environment_type == "LoadBalanced" ? 1 : 0
+#   bucket        = "daniyal-eb-loadbalancer-logs"
+#   acl           = "private"
+#   force_destroy = var.force_destroy
+#   policy        = join("", data.aws_iam_policy_document.elb_logs.*.json)
+# }
 
 resource "aws_iam_instance_profile" "ec2" {
-  name = "daniyal-eb-ec2"
+  name = "${terraform.workspace}-eb-ec2"
   role = aws_iam_role.ec2.name
 }
 
@@ -324,16 +324,16 @@ locals {
   tags = { for t in keys(var.tags) : t => var.tags[t] if t != "Name" && t != "Namespace" }
 
   alb_settings = [
-    {
-      namespace = "aws:elbv2:loadbalancer"
-      name      = "AccessLogsS3Bucket"
-      value     = join("", sort(aws_s3_bucket.elb_logs.*.id))
-    },
-    {
-      namespace = "aws:elbv2:loadbalancer"
-      name      = "AccessLogsS3Enabled"
-      value     = "true"
-    },
+    # {
+    #   namespace = "aws:elbv2:loadbalancer"
+    #   name      = "AccessLogsS3Bucket"
+    #   value     = join("", sort(aws_s3_bucket.elb_logs.*.id))
+    # },
+    # {
+    #   namespace = "aws:elbv2:loadbalancer"
+    #   name      = "AccessLogsS3Enabled"
+    #   value     = "true"
+    # },
     {
       namespace = "aws:elbv2:loadbalancer"
       name      = "SecurityGroups"
@@ -423,7 +423,7 @@ resource "aws_elastic_beanstalk_environment" "default" {
   tier                   = var.tier
   solution_stack_name    = var.solution_stack_name
   wait_for_ready_timeout = var.wait_for_ready_timeout
-  version_label          = var.version_label
+  version_label = "daniyal-docker-001"
   tags                   = local.tags
 
   dynamic "setting" {
@@ -770,25 +770,25 @@ data "aws_elb_service_account" "main" {
   count = var.tier == "WebServer" && var.environment_type == "LoadBalanced" ? 1 : 0
 }
 
-data "aws_iam_policy_document" "elb_logs" {
-  count = var.tier == "WebServer" && var.environment_type == "LoadBalanced" ? 1 : 0
+# data "aws_iam_policy_document" "elb_logs" {
+#   count = var.tier == "WebServer" && var.environment_type == "LoadBalanced" ? 1 : 0
 
-  statement {
-    sid = ""
+#   statement {
+#     sid = ""
 
-    actions = [
-      "s3:PutObject",
-    ]
+#     actions = [
+#       "s3:PutObject",
+#     ]
 
-    resources = [
-      "arn:aws:s3:::daniyal-eb-loadbalancer-logs/*"
-    ]
+#     resources = [
+#       "arn:aws:s3:::daniyal-eb-loadbalancer-logs/*"
+#     ]
 
-    principals {
-      type        = "AWS"
-      identifiers = [join("", data.aws_elb_service_account.main.*.arn)]
-    }
+#     principals {
+#       type        = "AWS"
+#       identifiers = [join("", data.aws_elb_service_account.main.*.arn)]
+#     }
 
-    effect = "Allow"
-  }
-}
+#     effect = "Allow"
+#   }
+# }

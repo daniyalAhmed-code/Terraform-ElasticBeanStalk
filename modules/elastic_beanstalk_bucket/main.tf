@@ -1,22 +1,24 @@
 data "archive_file" "api_dist_zip" {
   type        = "zip"
-  source_dir =  "${path.module}/application/${var.api_dist}/"
-  output_path = "${path.module}/application/zip/${var.api_dist}.zip"
+  source_dir = "${path.module}/${var.api_dist}/"
+  output_path = "${path.module}/application/${var.api_dist}.zip"
 }
 resource "aws_s3_bucket" "dist_bucket" {
-  bucket = "daniyal-elb-dist"
-  acl    = "private"
+  bucket = "${terraform.workspace}-elb-dist"
+  acl = "public-read"
 }
 resource "aws_s3_bucket_object" "dist_item" {
-  key    = "daniyal-elb/dist-${uuid()}"
-  bucket = "${aws_s3_bucket.dist_bucket.id}"
-  source = "${path.root}/application/zip/${var.api_dist}.zip"
+  bucket =aws_s3_bucket.dist_bucket.id
+  key    = "application/${var.api_dist}.zip"
+  source = "${path.module}/application/${var.api_dist}.zip"
+  etag = filemd5("${path.module}/application/${var.api_dist}.zip")
 }
+
 resource "aws_elastic_beanstalk_application_version" "default" {
-  name        = "daniyal-bucket-${uuid()}"
-#   application = "${module.elastic_beanstalk_application.app_name}"
+  name        =  "daniyal-docker-001"
   application = "${var.application}" 
   description = "application version created by terraform"
-  bucket      = "${aws_s3_bucket.dist_bucket.id}"
+  bucket      = "${aws_s3_bucket.dist_bucket.bucket}"
   key         = "${aws_s3_bucket_object.dist_item.id}"
 }
+
