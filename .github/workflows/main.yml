@@ -13,7 +13,7 @@ jobs:
       uses: actions/checkout@v1
 
     - name: Generate deployment package
-      run: cd modules/elastic_beanstalk_bucket/Archive  &&  zip -r Archive.zip . -x '*.git*' && mv Archive.zip cd
+      run: cd modules/elastic_beanstalk_bucket/Archive  &&  zip -r Archive.zip . -x '*.git*' && mv Archive.zip ../../../
       
     - name: Deploy to EB
       uses: einaregilsson/beanstalk-deploy@v13
