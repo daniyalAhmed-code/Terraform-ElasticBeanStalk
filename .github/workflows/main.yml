@@ -21,6 +21,6 @@ jobs:
         aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         application_name: elastic-beanstalk-env
         environment_name: elastic-beanstalk-env
-        version_label: daniyal-docker-006
+        version_label: daniyal-docker-$(git rev-parse --short "$GITHUB_SHA")
         region: us-east-2
         deployment_package: Archive.zip
