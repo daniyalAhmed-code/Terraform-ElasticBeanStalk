@@ -13,7 +13,7 @@ jobs:
       uses: actions/checkout@v1
 
     - name: Generate deployment package
-      run: zip -r Archive.zip ./modules/elastic_beanstalk_bucket/Archive -x '*.git*'
+      run: cd modules/elastic_beanstalk_bucket/Archive  &&  zip -r Archive.zip . -x '*.git*' && mv Archive.zip cd
       
     - name: Deploy to EB
       uses: einaregilsson/beanstalk-deploy@v13
@@ -22,6 +22,6 @@ jobs:
         aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         application_name: elastic-beanstalk-env
         environment_name: elastic-beanstalk-env
-        version_label: daniyal-docker-005
+        version_label: daniyal-docker-006
         region: us-east-2
         deployment_package: Archive.zip
