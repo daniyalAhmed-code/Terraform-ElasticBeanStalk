@@ -24,3 +24,29 @@ jobs:
         version_label: daniyal-docker-${{ github.sha }}
         region: us-east-2
         deployment_package: Archive.zip
+
+name: Deploy pull request
+on:
+  push:
+    pull_request:
+    
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    
+    - name: Checkout source code
+      uses: actions/checkout@v1
+
+    - name: Generate deployment package
+      run: cd modules/elastic_beanstalk_bucket/Archive  &&  zip -r Archive.zip . -x '*.git*' && mv Archive.zip ../../../
+    - name: Deploy to EB
+      uses: einaregilsson/beanstalk-deploy@v13
+      with:
+        aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        application_name: elastic-beanstalk-devtest
+        environment_name: elastic-beanstalk-dev
+        version_label: daniyal-dev-docker-${{ github.sha }}
+        region: us-east-2
+        deployment_package: Archive.zip        
