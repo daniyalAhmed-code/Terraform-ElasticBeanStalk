@@ -1,7 +1,7 @@
 resource "aws_elastic_beanstalk_application" "default" {
     name        = var.name
     description = "Test elastic_beanstalk_application"
-   version_label = "daniyal-docker-001"
+ 
 }
 resource "aws_elastic_beanstalk_configuration_template" "tf_template" {
   name                = var.name
