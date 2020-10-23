@@ -2,7 +2,7 @@ from flask import Flask
 app = Flask(__name__)
 @app.route('/')
 def hello():
-    return ' Hello this is a static page part 3 of deployment'
+    return ' Hello this is a static page part 4 of deployment'
     # return 'Hello World! I have been hit)
 
 if __name__ == "__main__":
