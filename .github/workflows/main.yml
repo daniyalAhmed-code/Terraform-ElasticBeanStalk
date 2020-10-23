@@ -15,8 +15,8 @@ jobs:
 
     - name: Generate deployment package
       run: cd modules/elastic_beanstalk_bucket/Archive  &&  zip -r Archive.zip . -x '*.git*' && mv Archive.zip ../../../
-    - name: Deploy to EB
-      if: ${{ github.event_name == 'pull_request'}}
+    - name: Deploy to PROD EB
+      if: ${{ github.event_name == 'push'}}
       uses: einaregilsson/beanstalk-deploy@v13
       with:
         aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -26,7 +26,8 @@ jobs:
         version_label: daniyal-docker-${{ github.sha }}
         region: us-east-2
         deployment_package: Archive.zip
-      if: ${{ github.event_name == 'push'}}  
+    - name: Deploy to dev EB
+      if: ${{ github.event_name == 'pull_request'}}
       uses: einaregilsson/beanstalk-deploy@v13
       with:
         aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -35,4 +36,5 @@ jobs:
         environment_name: elastic-beanstalk-devtest
         version_label: daniyal-dev-docker-${{ github.sha }}
         region: us-east-2
-        deployment_package: Archive.zip   
+        deployment_package: Archive.zip  
+       
