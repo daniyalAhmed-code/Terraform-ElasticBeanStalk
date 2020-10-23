@@ -14,8 +14,8 @@ jobs:
 
     - name: Generate deployment package
       run: cd modules/elastic_beanstalk_bucket/Archive  &&  zip -r Archive.zip . -x '*.git*' && mv Archive.zip ../../../
-      
-    - name: Deploy to EB
+   
+      - name: Deploy to EB
       uses: einaregilsson/beanstalk-deploy@v13
       with:
         aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
